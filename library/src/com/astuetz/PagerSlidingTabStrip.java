@@ -49,7 +49,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	public interface IconTabProvider {
 		public int getPageIconResId(int position);
 	}
-	
+
 	public interface ViewTabProvider {
 		public View getPageView(int position);
 	}
@@ -58,7 +58,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	private static final int[] ATTRS = new int[] {
 		android.R.attr.textSize,
 		android.R.attr.textColor
-    };
+	};
 	// @formatter:on
 
 	private LinearLayout.LayoutParams defaultTabLayoutParams;
@@ -73,6 +73,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	private int tabCount;
 
 	private int currentPosition = 0;
+	private int selectedPosition = 0;
 	private float currentPositionOffset = 0f;
 
 	private Paint rectPaint;
@@ -209,6 +210,8 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
 		}
 
+		setSelectedPosition(pager.getCurrentItem());
+
 		updateTabStyles();
 
 		getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -232,7 +235,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	}
 
 	private void addTextTab(final int position, String title) {
-		
+
 		TextView tab = new TextView(getContext());
 		tab.setText(title);
 		tab.setGravity(Gravity.CENTER);
@@ -361,9 +364,14 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
 		@Override
 		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-			currentPosition = position;
-			currentPositionOffset = positionOffset;
+			if (positionOffset == 1) {
+				// Moved all the way over to next page, just set it as such
+				currentPosition = position + 1;
+				currentPositionOffset = 0;
+			} else {
+				currentPosition = position;
+				currentPositionOffset = positionOffset;
+			}
 
 			scrollToChild(position, (int) (positionOffset * tabsContainer.getChildAt(position).getWidth()));
 
@@ -387,6 +395,8 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
 		@Override
 		public void onPageSelected(int position) {
+			setSelectedPosition(position);
+
 			if (delegatePageListener != null) {
 				delegatePageListener.onPageSelected(position);
 			}
@@ -540,7 +550,20 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 		SavedState savedState = (SavedState) state;
 		super.onRestoreInstanceState(savedState.getSuperState());
 		currentPosition = savedState.currentPosition;
+		setSelectedPosition(currentPosition);
 		requestLayout();
+	}
+
+	private void setSelectedPosition(int position) {
+		if (selectedPosition >= 0 && selectedPosition < tabsContainer.getChildCount()) {
+			tabsContainer.getChildAt(selectedPosition).setSelected(false);
+		}
+
+		selectedPosition = position;
+
+		if (position >= 0 && position < tabsContainer.getChildCount()) {
+			tabsContainer.getChildAt(position).setSelected(true);
+		}
 	}
 
 	@Override

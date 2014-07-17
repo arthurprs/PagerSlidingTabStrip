@@ -65,7 +65,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	private LinearLayout.LayoutParams expandedTabLayoutParams;
 
 	private final PageListener pageListener = new PageListener();
-	public OnPageChangeListener delegatePageListener;
+	private OnPageChangeListener delegatePageListener;
 
 	private LinearLayout tabsContainer;
 	private ViewPager pager;
@@ -189,8 +189,12 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	}
 
 	public void setOnPageChangeListener(OnPageChangeListener listener) {
-		this.delegatePageListener = listener;
+		delegatePageListener = listener;
 	}
+
+    public OnPageChangeListener getOnPageChangeListener() {
+        return delegatePageListener;
+    }
 
 	public void notifyDataSetChanged() {
 

@@ -11,7 +11,7 @@ buildscript {
 }
 
 allprojects {
-    version = VERSION_NAME
+    //version = VERSION_NAME
     group = GROUP
 
     repositories {
